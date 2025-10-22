@@ -5,12 +5,7 @@ export const dynamic = 'force-dynamic';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
-async function tryCall(
-  url: string,
-  apiKey: string,
-  body: unknown,
-  projectId?: string
-) {
+async function tryCall(url: string, apiKey: string, body: unknown, projectId?: string) {
   const headers: Record<string,string> = {
     Authorization: `Bearer ${apiKey}`,
     'Content-Type': 'application/json',
@@ -38,25 +33,25 @@ export async function POST(req: NextRequest) {
 
     const tries: any[] = [];
 
-    // A) /v1/workflows/runs  + input
+    // 1) /v1/workflows/runs + input
     tries.push(await tryCall('https://api.openai.com/v1/workflows/runs', apiKey, {
       workflow_id: workflowId, input: { messages: messages ?? [] }
     }, projectId));
 
-    // B) /v1/workflows/runs  + inputs
+    // 2) /v1/workflows/runs + inputs
     if (!tries.at(-1).ok) {
       tries.push(await tryCall('https://api.openai.com/v1/workflows/runs', apiKey, {
         workflow_id: workflowId, inputs: { messages: messages ?? [] }
       }, projectId));
     }
 
-    // C) /v1/workflows/{id}/runs + input
+    // 3) /v1/workflows/{id}/runs + input
     if (!tries.at(-1).ok) {
       tries.push(await tryCall(`https://api.openai.com/v1/workflows/${encodeURIComponent(workflowId)}/runs`,
         apiKey, { input: { messages: messages ?? [] } }, projectId));
     }
 
-    // D) /v1/workflows/{id}/runs + inputs
+    // 4) /v1/workflows/{id}/runs + inputs
     if (!tries.at(-1).ok) {
       tries.push(await tryCall(`https://api.openai.com/v1/workflows/${encodeURIComponent(workflowId)}/runs`,
         apiKey, { inputs: { messages: messages ?? [] } }, projectId));
@@ -73,7 +68,6 @@ export async function POST(req: NextRequest) {
       return new Response(JSON.stringify({ text }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // kein Erfolg → beste Fehlermeldung zurückgeben
     const last = tries.at(-1);
     const bestMsg = last?.json?.error?.message || last?.raw || 'Unknown error';
     return new Response(JSON.stringify({
