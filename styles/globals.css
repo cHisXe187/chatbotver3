@@ -1,0 +1,9 @@
+html, body { margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+.container { max-width: 760px; margin: 0 auto; padding: 24px; }
+.card { border: 1px solid rgba(0,0,0,.15); border-radius: 12px; padding: 16px; }
+.message { margin: 6px 0; padding: 10px 12px; border-radius: 10px; }
+.me { background: rgba(0,128,255,.15); }
+.bot { background: rgba(0,0,0,.05); }
+.row { display: flex; gap: 8px; }
+input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ccc; }
+button { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; }
